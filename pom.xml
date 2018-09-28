@@ -1,0 +1,106 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>sample</groupId>
+  <artifactId>deploy</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>deploy</name>
+
+  
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <weblogic.server>${server}</weblogic.server>
+    <weblogic.user>${user}</weblogic.user>
+    <weblogic.password>${password}</weblogic.password>
+    <weblogic.lib.home>\\${server}\${lib}</weblogic.lib.home>
+    <weblogic.port>${port}</weblogic.port>
+    <weblogic.target>${target}</weblogic.target>
+    
+    <!-- Variables  para el servidor tomcat-->
+    <tomcat.server>${server}</tomcat.server>
+    <tomcat.user>${user}</tomcat.user>
+    <tomcat.password>${password}</tomcat.password>
+    <tomcat.port>${port}</tomcat.port>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>sample</groupId>
+	  <artifactId>webapp</artifactId>
+	  <version>0.0.1-SNAPSHOT</version>
+	  <type>war</type>
+    </dependency>
+    
+    <dependency>
+        <groupId>com.oracle.weblogic</groupId>
+        <artifactId>wlfullclient</artifactId>
+        <version>12.1.3-0-0</version>
+    </dependency>
+  </dependencies>  
+  
+  <build>
+  	<directory>lib</directory>  	
+	  <plugins>
+	  	<plugin>
+	        <groupId>org.apache.maven.plugins</groupId>
+	        <artifactId>maven-dependency-plugin</artifactId>
+	        <configuration>
+	          <outputDirectory>
+	            ${project.build.directory}
+	          </outputDirectory>
+	        </configuration>
+	    </plugin>
+	    
+	  	<plugin>                
+                <groupId>com.oracle.weblogic</groupId> 
+                <artifactId>weblogic-maven-plugin</artifactId> 
+                <version>12.1.3-0-0</version>
+                <configuration>                               
+                    <adminurl>t3://${weblogic.server}:${weblogic.port}</adminurl>
+                    <user>${weblogic.user}</user> 
+                    <password>${weblogic.password}</password>                     
+                    <upload>true</upload> 
+                    <debug>true</debug>
+                    <action>deploy</action> 
+                    <remote>true</remote> 
+                    <isLibrary>false</isLibrary>
+                    <verbose>true</verbose>
+                    <!-- <targets>${weblogic.target}</targets>-->                    
+                    <ignoresessions>true</ignoresessions>
+                    <usenonexclusivelock>true</usenonexclusivelock>
+                    <source>${project.build.directory}/webapp-0.0.1-SNAPSHOT.war</source> 
+                    <name>${project.build.finalName}</name> 
+                </configuration>                 
+                <executions> 
+                    <execution>                        
+                        <goals> 
+                            <goal>deploy</goal>                            
+                        </goals> 
+                    </execution> 
+                </executions> 
+                <dependencies>                    
+                    <dependency>
+                        <groupId>com.oracle.weblogic</groupId>
+                        <artifactId>wlfullclient</artifactId>
+                        <version>12.1.3-0-0</version>
+                    </dependency>
+                </dependencies> 
+            </plugin>
+            
+            <!-- Plugin para tomcat -->
+            <plugin>
+			    <groupId>org.apache.tomcat.maven</groupId>
+			    <artifactId>tomcat7-maven-plugin</artifactId>
+			    <version>2.2</version>
+			    <configuration>
+			        <url>http://localhost:8080/manager/text</url>
+			        <server>TomcatServer</server>
+			        <path>${project.build.directory}/webapp-0.0.1-SNAPSHOT.war</path>
+			    </configuration>
+			</plugin>
+	  </plugins>
+  
+  </build>
+</project>
